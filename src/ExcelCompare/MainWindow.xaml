@@ -4,9 +4,60 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:ExcelCompare"
+        xmlns:utils="clr-namespace:ExcelCompare.Utils"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
+        WindowStyle="ToolWindow"
+        d:WindowStyle="ToolWindow"
+        ResizeMode="NoResize"
+        Title="" Height="280" Width="565">
     <Grid>
-
+        <Button Content="源Excel" 
+                HorizontalAlignment="Left"
+                Margin="10,10,0,0"
+                VerticalAlignment="Top" 
+                Width="80"
+                Click="{utils:MethodBinding {Binding RelativeSource={RelativeSource Mode=Self},Path=DataContext.ExcelInfoOrigin}, LoadExcel}"/>
+        <ComboBox HorizontalAlignment="Left"
+                  Margin="95,10,0,0" 
+                  VerticalAlignment="Top" 
+                  Width="170" 
+                  Height="20"
+                  ItemsSource="{Binding RelativeSource={RelativeSource Mode=Self},Path=DataContext.ExcelInfoOrigin.Sheets}"
+                  SelectedIndex="{Binding RelativeSource={RelativeSource Mode=Self},Path=DataContext.ExcelInfoOrigin.SheetSelectIndex}"
+                  Visibility="{Binding RelativeSource={RelativeSource Mode=Self},Path=DataContext.ExcelInfoOrigin.Available,Converter={StaticResource visibilityHiddenConverter}}"
+                  />
+        <Button Content="目标Excel" 
+                HorizontalAlignment="Left"
+                Margin="286,10,0,0" 
+                Width="80"
+                VerticalAlignment="Top"
+                Click="{utils:MethodBinding {Binding RelativeSource={RelativeSource Mode=Self},Path=DataContext.ExcelInfoTarget}, LoadExcel}"/>
+        <ComboBox HorizontalAlignment="Left" 
+                  Margin="371,10,0,0" 
+                  VerticalAlignment="Top" 
+                  Width="170"
+                  Height="20"
+                  ItemsSource="{Binding RelativeSource={RelativeSource Mode=Self},Path=DataContext.ExcelInfoTarget.Sheets}"
+                  SelectedIndex="{Binding RelativeSource={RelativeSource Mode=Self},Path=DataContext.ExcelInfoTarget.SheetSelectIndex}"
+                  Visibility="{Binding RelativeSource={RelativeSource Mode=Self},Path=DataContext.ExcelInfoTarget.Available,Converter={StaticResource visibilityHiddenConverter}}"
+                  />
+        <Rectangle HorizontalAlignment="Left" 
+                   Height="22" 
+                   Margin="275,11,0,0"
+                   Stroke="Black"
+                   VerticalAlignment="Top"
+                   Width="1"/>
+        <TextBox HorizontalAlignment="Left"
+                 Margin="10,39,0,0"
+                 Text="{Binding CompareResult}" 
+                 TextWrapping="Wrap"
+                 IsReadOnly="True"
+                 VerticalAlignment="Top" 
+                 VerticalScrollBarVisibility="Auto"
+                 Width="530"
+                 Height="191"/>
+        <Border Background="Gray" 
+                Opacity="0.5"
+                Visibility="{Binding Loading,Converter={StaticResource visibilityHiddenConverter},TargetNullValue=Hidden,FallbackValue=Hidden}"/>
     </Grid>
 </Window>
