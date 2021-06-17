@@ -65,7 +65,7 @@ jobs:
         dotnet-version: 5.0.x
 
     - name: Build with dotnet
-      run: dotnet publish $env:Project_Directory -c Release -r win-x64 -o $env:Release_Directory --self-contained true /p:PublishTrimmed=true
+      run: dotnet publish $env:Project_Directory -c Release -r win-x64 -o $env:Release_Directory --self-contained true /p:PublishTrimmed=true /p:PublishSingleFile=true
     
     - name: Create archive
       run: Compress-Archive -Path $env:Release_Directory\* -DestinationPath $env:Release_Directory\$env:Release_Archive
