@@ -8,7 +8,19 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="NPOI" Version="2.5.3" />
+    <Compile Remove="ViewModels\**" />
+    <EmbeddedResource Remove="ViewModels\**" />
+    <None Remove="ViewModels\**" />
+    <Page Remove="ViewModels\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Remove="Utils\SimilarityHelper.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\ExcelCompare.Models\ExcelCompare.Models.csproj" />
+    <ProjectReference Include="..\ExcelCompare.ViewModels\ExcelCompare.ViewModels.csproj" />
   </ItemGroup>
 
 </Project>

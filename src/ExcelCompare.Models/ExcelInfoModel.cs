@@ -11,9 +11,9 @@ using System.Windows;
 
 namespace ExcelCompare.Models
 {
-    public class ExcelInfoModel:IDisposable
+    public class ExcelInfoModel : IDisposable
     {
-        public static ExcelInfoModel LoadFromPath(string excelPath)
+        public static ExcelInfoModel LoadFromPath(string excelPath, out string errorMsg)
         {
             try
             {
@@ -27,16 +27,18 @@ namespace ExcelCompare.Models
                 };
                 if (workbook == null)
                 {
+                    errorMsg = null;
                     return null;
                 }
                 else
                 {
+                    errorMsg = null;
                     return new ExcelInfoModel(workbook);
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show(ex.Message);
+                errorMsg = ex.Message;
                 return null;
             }
         }

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Win32;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -54,6 +55,7 @@ namespace ExcelCompare.Utils
                 var instance = System.Linq.Expressions.Expression.Constant(markupExpression.TargetObject);
                 var expressionArgs = markupExpression.Args
                 .Select(arg => arg is EventArgsExtension ? e : arg)
+                .Select(arg => arg is OpenFileDialogExtension openFileDialog ? openFileDialog.SelectFilePath : null)
                 .Select(arg => System.Linq.Expressions.Expression.Constant(arg));
 
                 var callExpression = System.Linq.Expressions.Expression.Call(
@@ -69,6 +71,34 @@ namespace ExcelCompare.Utils
 
     public class EventArgsExtension : MarkupExtension
     {
+        public override object ProvideValue(IServiceProvider serviceProvider)
+        {
+            return this;
+        }
+    }
+
+    public class OpenFileDialogExtension : MarkupExtension
+    {
+        private readonly string filter;
+
+        public string SelectFilePath
+        {
+            get
+            {
+                OpenFileDialog openFileDialog = new() { Filter = filter };
+                if (openFileDialog.ShowDialog() == true)
+                {
+                    return openFileDialog.FileName;
+                }
+                return null;
+            }
+        }
+
+        public OpenFileDialogExtension(string filter)
+        {
+            this.filter = filter;
+        }
+
         public override object ProvideValue(IServiceProvider serviceProvider)
         {
             return this;

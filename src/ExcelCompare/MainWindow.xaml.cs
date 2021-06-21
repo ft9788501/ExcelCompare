@@ -24,7 +24,10 @@ namespace ExcelCompare
         public MainWindow()
         {
             InitializeComponent();
-            DataContext = new MainWindowViewModel();
+            MainWindowViewModel mainWindowViewModel = new();
+            BindingOperations.EnableCollectionSynchronization(mainWindowViewModel.ExcelInfoOrigin.Sheets, mainWindowViewModel.ExcelInfoOrigin);
+            BindingOperations.EnableCollectionSynchronization(mainWindowViewModel.ExcelInfoTarget.Sheets, mainWindowViewModel.ExcelInfoTarget);
+            DataContext = mainWindowViewModel;
         }
     }
 }

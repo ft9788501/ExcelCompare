@@ -16,7 +16,7 @@
                 Margin="10,10,0,0"
                 VerticalAlignment="Top" 
                 Width="80"
-                Click="{utils:MethodBinding {Binding RelativeSource={RelativeSource Mode=Self},Path=DataContext.ExcelInfoOrigin}, LoadExcel}"/>
+                Click="{utils:MethodBinding {Binding RelativeSource={RelativeSource Mode=Self},Path=DataContext.ExcelInfoOrigin}, LoadExcel,{utils:OpenFileDialog 'Excel(*.xlsx;*.xls)|*.xlsx;*.xls'}}"/>
         <ComboBox HorizontalAlignment="Left"
                   Margin="95,10,0,0" 
                   VerticalAlignment="Top" 
@@ -26,12 +26,22 @@
                   SelectedIndex="{Binding RelativeSource={RelativeSource Mode=Self},Path=DataContext.ExcelInfoOrigin.SheetSelectIndex}"
                   Visibility="{Binding RelativeSource={RelativeSource Mode=Self},Path=DataContext.ExcelInfoOrigin.Available,Converter={StaticResource visibilityHiddenConverter}}"
                   />
+        <TextBlock HorizontalAlignment="Left"
+                  Margin="95,10,0,0" 
+                  VerticalAlignment="Top" 
+                  Width="170" 
+                  Height="20"
+                  ToolTip="{Binding RelativeSource={RelativeSource Mode=Self},Path=DataContext.ExcelInfoOrigin.ErrorMsg}"
+                  Text="{Binding RelativeSource={RelativeSource Mode=Self},Path=DataContext.ExcelInfoOrigin.ErrorMsg}"
+                  TextTrimming="CharacterEllipsis"
+                  Visibility="{Binding RelativeSource={RelativeSource Mode=Self},Path=DataContext.ExcelInfoOrigin.Available,Converter={StaticResource visibilityHiddenConverter},ConverterParameter=Invert}"
+                  />
         <Button Content="目标Excel" 
                 HorizontalAlignment="Left"
                 Margin="286,10,0,0" 
                 Width="80"
                 VerticalAlignment="Top"
-                Click="{utils:MethodBinding {Binding RelativeSource={RelativeSource Mode=Self},Path=DataContext.ExcelInfoTarget}, LoadExcel}"/>
+                Click="{utils:MethodBinding {Binding RelativeSource={RelativeSource Mode=Self},Path=DataContext.ExcelInfoTarget}, LoadExcel,{utils:OpenFileDialog 'Excel(*.xlsx;*.xls)|*.xlsx;*.xls'}}"/>
         <ComboBox HorizontalAlignment="Left" 
                   Margin="371,10,0,0" 
                   VerticalAlignment="Top" 
@@ -40,6 +50,16 @@
                   ItemsSource="{Binding RelativeSource={RelativeSource Mode=Self},Path=DataContext.ExcelInfoTarget.Sheets}"
                   SelectedIndex="{Binding RelativeSource={RelativeSource Mode=Self},Path=DataContext.ExcelInfoTarget.SheetSelectIndex}"
                   Visibility="{Binding RelativeSource={RelativeSource Mode=Self},Path=DataContext.ExcelInfoTarget.Available,Converter={StaticResource visibilityHiddenConverter}}"
+                  />
+        <TextBlock HorizontalAlignment="Left" 
+                  Margin="371,10,0,0" 
+                  VerticalAlignment="Top" 
+                  Width="170"
+                  Height="20"
+                  ToolTip="{Binding RelativeSource={RelativeSource Mode=Self},Path=DataContext.ExcelInfoTarget.ErrorMsg}"
+                  Text="{Binding RelativeSource={RelativeSource Mode=Self},Path=DataContext.ExcelInfoTarget.ErrorMsg}"
+                  TextTrimming="CharacterEllipsis"
+                  Visibility="{Binding RelativeSource={RelativeSource Mode=Self},Path=DataContext.ExcelInfoTarget.Available,Converter={StaticResource visibilityHiddenConverter},ConverterParameter=Invert}"
                   />
         <Rectangle HorizontalAlignment="Left" 
                    Height="22" 
