@@ -9,7 +9,7 @@
         WindowStyle="ToolWindow"
         d:WindowStyle="ToolWindow"
         ResizeMode="NoResize"
-        Title="" Height="280" Width="565">
+        Title="" Height="480" Width="565">
     <Grid>
         <Button Content="源Excel" 
                 HorizontalAlignment="Left"
@@ -75,7 +75,7 @@
                  VerticalAlignment="Top" 
                  VerticalScrollBarVisibility="Auto"
                  Width="530"
-                 Height="191"/>
+                 Height="391"/>
         <Border Background="Gray" 
                 Opacity="0.5"
                 Visibility="{Binding Loading,Converter={StaticResource visibilityHiddenConverter},TargetNullValue=Hidden,FallbackValue=Hidden}"/>

@@ -88,6 +88,30 @@ namespace ExcelCompare.Models
             {
                 return $"行号:{Index},运单号:{WaybillNumber},箱号:{BoxNumber},实际总未收本位币金额:{Amount}";
             }
+
+            public string CompareResult(ExcelRow excelRow)
+            {
+                StringBuilder stringBuilder = new StringBuilder();
+                if (WaybillNumber != excelRow.WaybillNumber ||
+                    BoxNumber != excelRow.BoxNumber ||
+                    Amount != excelRow.Amount)
+                {
+                    stringBuilder.AppendLine($"行号:{ Index}->行号:{ excelRow.Index}");
+                }
+                if (WaybillNumber != excelRow.WaybillNumber)
+                {
+                    stringBuilder.AppendLine($"运单号:{ WaybillNumber}->{ excelRow.WaybillNumber}");
+                }
+                if (BoxNumber != excelRow.BoxNumber)
+                {
+                    stringBuilder.AppendLine($"箱号:{ BoxNumber}->{ excelRow.BoxNumber}");
+                }
+                if (Amount != excelRow.Amount)
+                {
+                    stringBuilder.AppendLine($"实际总未收本位币金额:{ Amount}->{ excelRow.Amount}");
+                }
+                return stringBuilder.ToString();
+            }
         }
     }
 }
