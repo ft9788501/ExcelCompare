@@ -1,5 +1,4 @@
-﻿using ExcelCompare.ViewModels.Utils;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
@@ -70,7 +69,7 @@ namespace ExcelCompare.ViewModels
                     .Select(e => new
                     {
                         ExcelRow = e,
-                        Similarity = SimilarityHelper.CompareStrings(lack.Amount, e.Amount) / 3 + SimilarityHelper.CompareStrings(lack.BoxNumber, e.BoxNumber) / 3 + SimilarityHelper.CompareStrings(lack.WaybillNumber, e.WaybillNumber) / 3
+                        Similarity = lack.Compare(e)
                     }).OrderByDescending(x => x.Similarity)
                     .FirstOrDefault(x => x.Similarity > 0.8);
                 if (similarity != null)

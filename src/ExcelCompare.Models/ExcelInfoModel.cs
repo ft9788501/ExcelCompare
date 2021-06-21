@@ -1,4 +1,5 @@
-﻿using NPOI.HSSF.UserModel;
+﻿using ExcelCompare.Models.Utils;
+using NPOI.HSSF.UserModel;
 using NPOI.SS.UserModel;
 using NPOI.XSSF.UserModel;
 using System;
@@ -89,6 +90,16 @@ namespace ExcelCompare.Models
                 return $"行号:{Index},运单号:{WaybillNumber},箱号:{BoxNumber},实际总未收本位币金额:{Amount}";
             }
 
+            public double Compare(ExcelRow excelRow)
+            {
+                if ((Amount == excelRow.Amount ? 1 : 0) + (BoxNumber == excelRow.BoxNumber ? 1 : 0) + (WaybillNumber == excelRow.WaybillNumber ? 1 : 0) >= 2)
+                {
+                    return 0.99D;
+                }
+                var similarity = SimilarityHelper.CompareStrings(Amount, excelRow.Amount) / 3 + SimilarityHelper.CompareStrings(BoxNumber, excelRow.BoxNumber) / 3 + SimilarityHelper.CompareStrings(WaybillNumber, excelRow.WaybillNumber) / 3;
+                return similarity;
+            }
+
             public string CompareResult(ExcelRow excelRow)
             {
                 StringBuilder stringBuilder = new StringBuilder();
@@ -96,7 +107,8 @@ namespace ExcelCompare.Models
                     BoxNumber != excelRow.BoxNumber ||
                     Amount != excelRow.Amount)
                 {
-                    stringBuilder.AppendLine($"行号:{ Index}->行号:{ excelRow.Index}");
+                    var similarity = Compare(excelRow);
+                    stringBuilder.AppendLine($"行号:{ Index}->行号:{ excelRow.Index} (相似度:{similarity})");
                 }
                 if (WaybillNumber != excelRow.WaybillNumber)
                 {

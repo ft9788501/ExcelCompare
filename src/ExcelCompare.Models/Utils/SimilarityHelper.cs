@@ -5,7 +5,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
-namespace ExcelCompare.ViewModels.Utils
+namespace ExcelCompare.Models.Utils
 {
     public class SimilarityHelper
     {
