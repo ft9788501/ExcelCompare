@@ -1,17 +1,14 @@
-﻿using System;
+﻿using ExcelCompare.Models;
+using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
-using static ExcelCompare.Models.ExcelInfoModel;
 
 namespace ExcelCompare.ViewModels
 {
     public class MainWindowViewModel : ViewModelBase
     {
         private string compareResult = string.Empty;
-        public bool loading = false;
 
         public ExcelInfoViewModel ExcelInfoOrigin { get; }
         public ExcelInfoViewModel ExcelInfoTarget { get; }
@@ -25,15 +22,6 @@ namespace ExcelCompare.ViewModels
                 OnPropertyChanged();
             }
         }
-        public bool Loading
-        {
-            get => loading;
-            set
-            {
-                loading = value;
-                OnPropertyChanged();
-            }
-        }
 
         public MainWindowViewModel()
         {
@@ -43,7 +31,6 @@ namespace ExcelCompare.ViewModels
 
         public void RefreshCompareResult()
         {
-            //Loading = true;
             if (ExcelInfoOrigin.ExcelInfo == null || ExcelInfoTarget.ExcelInfo == null)
             {
                 CompareResult = string.Empty;
@@ -51,7 +38,6 @@ namespace ExcelCompare.ViewModels
             }
             var originRows = ExcelInfoOrigin.ExcelInfo.GetExcelRows(ExcelInfoOrigin.SheetSelectIndex);
             var targetRows = ExcelInfoTarget.ExcelInfo.GetExcelRows(ExcelInfoTarget.SheetSelectIndex);
-
             var lacks = originRows.Where(originRow => !targetRows.Any(targetRow =>
             originRow.WaybillNumber == targetRow.WaybillNumber &&
             originRow.BoxNumber == targetRow.BoxNumber &&
@@ -104,7 +90,10 @@ namespace ExcelCompare.ViewModels
                 compareResult.AppendLine($"重复:\r\n{string.Join("\r\n", duplicates)}");
             }
             CompareResult = compareResult.ToString();
-            //Loading = false;
+            if (string.IsNullOrEmpty(CompareResult))
+            {
+                CompareResult = "完全一致";
+            }
         }
     }
 }

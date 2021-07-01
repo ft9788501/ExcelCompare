@@ -32,7 +32,7 @@ namespace ExcelCompare.ViewModels
         }
         public ObservableCollection<string> Sheets => sheets;
         public bool Available => Sheets.Count > 0;
-        public ExcelInfoModel ExcelInfo { get; private set; }
+        public ExcelInfo ExcelInfo { get; private set; }
         public string ErrorMsg
         {
             get => errorMsg;
@@ -54,7 +54,7 @@ namespace ExcelCompare.ViewModels
             Sheets.Clear();
             sheetSelectIndex = -1;
             OnPropertyChanged(nameof(sheetSelectIndex));
-            ExcelInfo = ExcelInfoModel.LoadFromPath(excelPath, out string errorMsg);
+            ExcelInfo = ExcelInfo.LoadFromPath(excelPath, out string errorMsg);
             if (ExcelInfo == null)
             {
                 ErrorMsg = errorMsg;
