@@ -35,6 +35,7 @@ namespace ExcelCompare.ViewModels
 
         public void RunTask(Action<LoadingArgs> task)
         {
+            Progress = 0;
             Visible = true;
             cancellationTokenSource = new CancellationTokenSource();
             LoadingArgs loadingArgs = new LoadingArgs(this, cancellationTokenSource);
