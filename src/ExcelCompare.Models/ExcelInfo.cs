@@ -22,7 +22,7 @@ namespace ExcelCompare.Models
                 using var fileStream = File.OpenRead(excelPath);
                 IWorkbook workbook = excelExtension switch
                 {
-                    ".xlsx" => new XSSFWorkbook(fileStream) {IsHidden=false},
+                    ".xlsx" => new XSSFWorkbook(fileStream) { IsHidden = false },
                     ".xls" => new HSSFWorkbook(fileStream) { IsHidden = false },
                     _ => null
                 };
@@ -65,7 +65,7 @@ namespace ExcelCompare.Models
             var sheet = workbook.GetSheetAt(sheetIndex);
             var excelRows = Enumerable.Range(1, sheet.LastRowNum)
                 .Select(r => sheet.GetRow(r))
-                .Select((sr, i) => new ExcelRow(i + 2, sr));
+                .Select((sr, i) => new ExcelRow(excelPath, i + 2, sr));
             return excelRows;
         }
 

@@ -40,30 +40,29 @@ namespace ExcelCompare.ViewModels
                 return;
             }
             CompareResult = "数据分析中...";
-            Loading.RunTask((e) =>
+            Loading.RunTaskWithErrorMsgReturn((e) =>
             {
-                var originRows = ExcelInfoOrigin.ExcelInfo.GetExcelRows(ExcelInfoOrigin.SheetSelectIndex);
-                var targetRows = ExcelInfoTarget.ExcelInfo.GetExcelRows(ExcelInfoTarget.SheetSelectIndex);
+                var originRows = ExcelInfoOrigin.ExcelInfo.GetExcelRows(ExcelInfoOrigin.SheetSelectIndex).ToArray();
+                var targetRows = ExcelInfoTarget.ExcelInfo.GetExcelRows(ExcelInfoTarget.SheetSelectIndex).ToArray();
                 var lacks = originRows.Where(originRow => !targetRows.Any(targetRow =>
                 originRow.WaybillNumber == targetRow.WaybillNumber &&
                 originRow.BoxNumber == targetRow.BoxNumber &&
-                originRow.Amount == targetRow.Amount));
+                originRow.Amount == targetRow.Amount)).ToArray();
 
                 var extras = targetRows.Where(targetRow => !originRows.Any(originRow =>
                 originRow.WaybillNumber == targetRow.WaybillNumber &&
                 originRow.BoxNumber == targetRow.BoxNumber &&
-                originRow.Amount == targetRow.Amount));
+                originRow.Amount == targetRow.Amount)).ToArray();
 
-                var lackArr = lacks.ToArray();
                 List<ValueTuple<ExcelRow, ExcelRow>> errorExcelRows = new();
-                for (int i = 0; i < lackArr.Length; i++)
+                for (int i = 0; i < lacks.Length; i++)
                 {
                     if (e.CancellationTokenSource.IsCancellationRequested)
                     {
                         CompareResult = "已取消";
                         return;
                     }
-                    var lack = lackArr[i];
+                    var lack = lacks[i];
                     var similarity = extras.Where(l => !errorExcelRows.Any(e => e.Item2.Index == l.Index))
                         .Select(e => new
                         {
@@ -77,7 +76,7 @@ namespace ExcelCompare.ViewModels
                     {
                         errorExcelRows.Add(ValueTuple.Create(lack, similarity.ExcelRow));
                     }
-                    e.Progress = (double)i / lackArr.Length;
+                    e.Progress = (double)i / lacks.Length;
                 }
 
                 var duplicates = targetRows.Where(targetRow => targetRows.Count(originRow =>
@@ -109,6 +108,12 @@ namespace ExcelCompare.ViewModels
                 if (string.IsNullOrEmpty(CompareResult))
                 {
                     CompareResult = "完全一致";
+                }
+            }).ContinueWith((errorMsg) =>
+            {
+                if (errorMsg.Result != null)
+                {
+                    CompareResult = errorMsg.Result;
                 }
             });
         }

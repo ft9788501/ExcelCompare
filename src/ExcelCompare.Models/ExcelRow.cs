@@ -2,6 +2,7 @@
 using NPOI.SS.UserModel;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -26,13 +27,20 @@ namespace ExcelCompare.Models
             }
         }
 
-        public ExcelRow(int index, IRow row)
+        public ExcelRow(string excelPath, int index, IRow row)
         {
             this.row = row;
             Index = index;
-            WaybillNumber = row.GetCell(0).ToString();
-            BoxNumber = row.GetCell(1).ToString();
-            Amount = row.GetCell(2).ToString();
+            WaybillNumber = row.GetCell(0).ToString().Trim();
+            BoxNumber = row.GetCell(1).ToString().Trim();
+            if (double.TryParse(row.GetCell(2).ToString().Trim(), out double amount))
+            {
+                Amount = amount.ToString();
+            }
+            else
+            {
+                throw new Exception($"{Path.GetFileName(excelPath)}的第{Index}行的金额({row.GetCell(2).ToString().Trim()})非法！");
+            }
         }
 
         public override string ToString()

@@ -58,12 +58,16 @@ namespace ExcelCompare.Utils
                 .Select(arg => arg is OpenFileDialogExtension openFileDialog ? openFileDialog.SelectFilePath : null)
                 .Select(arg => System.Linq.Expressions.Expression.Constant(arg));
 
-                var callExpression = System.Linq.Expressions.Expression.Call(
-                        instance,
-                        methodInfo,
-                        expressionArgs);
-                var compile = System.Linq.Expressions.Expression.Lambda<Action>(callExpression).Compile();
-                compile.Invoke();
+                try
+                {
+                    var callExpression = System.Linq.Expressions.Expression.Call(
+                            instance,
+                            methodInfo,
+                            expressionArgs);
+                    var compile = System.Linq.Expressions.Expression.Lambda<Action>(callExpression).Compile();
+                    compile.Invoke();
+                }
+                catch { }
             };
             return Delegate.CreateDelegate(eventHandlerType, handler.Target, handler.Method);
         }

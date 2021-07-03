@@ -33,16 +33,27 @@ namespace ExcelCompare.ViewModels
             }
         }
 
-        public void RunTask(Action<LoadingArgs> task)
+        public Task<string> RunTaskWithErrorMsgReturn(Action<LoadingArgs> task)
         {
             Progress = 0;
             Visible = true;
             cancellationTokenSource = new CancellationTokenSource();
             LoadingArgs loadingArgs = new LoadingArgs(this, cancellationTokenSource);
-            Task.Run(() =>
+            return Task.Run(() =>
             {
-                task.Invoke(loadingArgs);
-                Visible = false;
+                try
+                {
+                    task.Invoke(loadingArgs);
+                    return null;
+                }
+                catch (Exception ex)
+                {
+                    return ex.Message;
+                }
+                finally
+                {
+                    Visible = false;
+                }
             });
         }
 
