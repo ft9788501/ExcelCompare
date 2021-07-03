@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace ExcelCompare.ViewModels
 {
@@ -12,6 +13,7 @@ namespace ExcelCompare.ViewModels
 
         public ExcelInfoViewModel ExcelInfoOrigin { get; }
         public ExcelInfoViewModel ExcelInfoTarget { get; }
+        public LoadingViewModel Loading { get; }
 
         public string CompareResult
         {
@@ -27,6 +29,7 @@ namespace ExcelCompare.ViewModels
         {
             ExcelInfoOrigin = new ExcelInfoViewModel(this);
             ExcelInfoTarget = new ExcelInfoViewModel(this);
+            Loading = new LoadingViewModel();
         }
 
         public void RefreshCompareResult()
@@ -36,64 +39,78 @@ namespace ExcelCompare.ViewModels
                 CompareResult = string.Empty;
                 return;
             }
-            var originRows = ExcelInfoOrigin.ExcelInfo.GetExcelRows(ExcelInfoOrigin.SheetSelectIndex);
-            var targetRows = ExcelInfoTarget.ExcelInfo.GetExcelRows(ExcelInfoTarget.SheetSelectIndex);
-            var lacks = originRows.Where(originRow => !targetRows.Any(targetRow =>
-            originRow.WaybillNumber == targetRow.WaybillNumber &&
-            originRow.BoxNumber == targetRow.BoxNumber &&
-            originRow.Amount == targetRow.Amount));
-
-            var extras = targetRows.Where(targetRow => !originRows.Any(originRow =>
-            originRow.WaybillNumber == targetRow.WaybillNumber &&
-            originRow.BoxNumber == targetRow.BoxNumber &&
-            originRow.Amount == targetRow.Amount));
-
-            List<ValueTuple<ExcelRow, ExcelRow>> errorExcelRows = new();
-            foreach (var lack in lacks)
+            CompareResult = "数据分析中...";
+            Loading.RunTask((e) =>
             {
-                var similarity = extras.Where(l => !errorExcelRows.Any(e => e.Item2.Index == l.Index))
-                    .Select(e => new
-                    {
-                        ExcelRow = e,
-                        Similarity = lack.Compare(e)
-                    }).OrderByDescending(x => x.Similarity)
-                    .FirstOrDefault(x => x.Similarity > 0.8);
-                if (similarity != null)
+                var originRows = ExcelInfoOrigin.ExcelInfo.GetExcelRows(ExcelInfoOrigin.SheetSelectIndex);
+                var targetRows = ExcelInfoTarget.ExcelInfo.GetExcelRows(ExcelInfoTarget.SheetSelectIndex);
+                var lacks = originRows.Where(originRow => !targetRows.Any(targetRow =>
+                originRow.WaybillNumber == targetRow.WaybillNumber &&
+                originRow.BoxNumber == targetRow.BoxNumber &&
+                originRow.Amount == targetRow.Amount));
+
+                var extras = targetRows.Where(targetRow => !originRows.Any(originRow =>
+                originRow.WaybillNumber == targetRow.WaybillNumber &&
+                originRow.BoxNumber == targetRow.BoxNumber &&
+                originRow.Amount == targetRow.Amount));
+
+                var lackArr = lacks.ToArray();
+                List<ValueTuple<ExcelRow, ExcelRow>> errorExcelRows = new();
+                for (int i = 0; i < lackArr.Length; i++)
                 {
-                    errorExcelRows.Add(ValueTuple.Create(lack, similarity.ExcelRow));
+                    if (e.CancellationTokenSource.IsCancellationRequested)
+                    {
+                        CompareResult = "已取消";
+                        return;
+                    }
+                    var lack = lackArr[i];
+                    var similarity = extras.Where(l => !errorExcelRows.Any(e => e.Item2.Index == l.Index))
+                        .Select(e => new
+                        {
+                            ExcelRow = e,
+                            Similarity = lack.Compare(e)
+                        })
+                        .Where(x => x.Similarity > 0.8)
+                        .OrderByDescending(x => x.Similarity)
+                        .FirstOrDefault();
+                    if (similarity != null)
+                    {
+                        errorExcelRows.Add(ValueTuple.Create(lack, similarity.ExcelRow));
+                    }
+                    e.Progress = (double)i / lackArr.Length;
                 }
-            }
 
-            var duplicates = targetRows.Where(targetRow => targetRows.Count(originRow =>
-            originRow.WaybillNumber == targetRow.WaybillNumber &&
-            originRow.BoxNumber == targetRow.BoxNumber &&
-            originRow.Amount == targetRow.Amount) > 1);
+                var duplicates = targetRows.Where(targetRow => targetRows.Count(originRow =>
+                originRow.WaybillNumber == targetRow.WaybillNumber &&
+                originRow.BoxNumber == targetRow.BoxNumber &&
+                originRow.Amount == targetRow.Amount) > 1);
 
-            StringBuilder compareResult = new();
-            if (lacks.Where(l => !errorExcelRows.Any(e => e.Item1.Index == l.Index)) is var lacksFiltered && lacksFiltered.Any())
-            {
-                compareResult.AppendLine($"缺少:\r\n{string.Join("\r\n", lacksFiltered)}");
-                compareResult.AppendLine($"---------------------------------------------------------------------------------------------------------");
-            }
-            if (extras.Where(l => !errorExcelRows.Any(e => e.Item2.Index == l.Index)) is var extrasFiltered && extrasFiltered.Any())
-            {
-                compareResult.AppendLine($"多余:\r\n{string.Join("\r\n", extrasFiltered)}");
-                compareResult.AppendLine($"---------------------------------------------------------------------------------------------------------");
-            }
-            if (errorExcelRows.Any())
-            {
-                compareResult.AppendLine($"错误:\r\n{string.Join("\r\n", errorExcelRows.Select(r => r.Item1.CompareResult(r.Item2)))}");
-                compareResult.AppendLine($"---------------------------------------------------------------------------------------------------------");
-            }
-            if (duplicates.Any())
-            {
-                compareResult.AppendLine($"重复:\r\n{string.Join("\r\n", duplicates)}");
-            }
-            CompareResult = compareResult.ToString();
-            if (string.IsNullOrEmpty(CompareResult))
-            {
-                CompareResult = "完全一致";
-            }
+                StringBuilder compareResult = new();
+                if (lacks.Where(l => !errorExcelRows.Any(e => e.Item1.Index == l.Index)) is var lacksFiltered && lacksFiltered.Any())
+                {
+                    compareResult.AppendLine($"缺少:\r\n{string.Join("\r\n", lacksFiltered)}");
+                    compareResult.AppendLine($"---------------------------------------------------------------------------------------------------------");
+                }
+                if (extras.Where(l => !errorExcelRows.Any(e => e.Item2.Index == l.Index)) is var extrasFiltered && extrasFiltered.Any())
+                {
+                    compareResult.AppendLine($"多余:\r\n{string.Join("\r\n", extrasFiltered)}");
+                    compareResult.AppendLine($"---------------------------------------------------------------------------------------------------------");
+                }
+                if (errorExcelRows.Any())
+                {
+                    compareResult.AppendLine($"错误:\r\n{string.Join("\r\n", errorExcelRows.Select(r => r.Item1.CompareResult(r.Item2)))}");
+                    compareResult.AppendLine($"---------------------------------------------------------------------------------------------------------");
+                }
+                if (duplicates.Any())
+                {
+                    compareResult.AppendLine($"重复:\r\n{string.Join("\r\n", duplicates)}");
+                }
+                CompareResult = compareResult.ToString();
+                if (string.IsNullOrEmpty(CompareResult))
+                {
+                    CompareResult = "完全一致";
+                }
+            });
         }
     }
 }

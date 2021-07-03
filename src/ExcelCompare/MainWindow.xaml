@@ -10,6 +10,9 @@
         d:WindowStyle="ToolWindow"
         ResizeMode="NoResize"
         Title="" Height="480" Width="565">
+    <Window.Resources>
+        <SolidColorBrush x:Key="loadingBackground" Color="Gray" Opacity="0.5"/>
+    </Window.Resources>
     <Grid>
         <Button Content="源Excel" 
                 HorizontalAlignment="Left"
@@ -76,8 +79,19 @@
                  VerticalScrollBarVisibility="Auto"
                  Width="530"
                  Height="391"/>
-        <Border Background="Gray" 
-                Opacity="0.5"
-                Visibility="{Binding Loading,Converter={StaticResource visibilityHiddenConverter},TargetNullValue=Hidden,FallbackValue=Hidden}"/>
+        <Border Background="{StaticResource loadingBackground}" 
+                Visibility="{Binding RelativeSource={RelativeSource Mode=Self},Path=DataContext.Loading.Visible,Mode=OneWay,Converter={StaticResource visibilityHiddenConverter},TargetNullValue=Hidden,FallbackValue=Hidden}">
+            <StackPanel Margin="20" 
+                        Orientation="Horizontal">
+                <ProgressBar Width="425"
+                             Height="20" 
+                             Maximum="1" 
+                             Value="{Binding RelativeSource={RelativeSource Mode=Self},Path=DataContext.Loading.Progress,Mode=OneWay}"/>
+                <Button Width="80"
+                        Height="22"
+                        Content="取消" 
+                        Click="{utils:MethodBinding {Binding RelativeSource={RelativeSource Mode=Self},Path=DataContext.Loading},Cancel}"/>
+            </StackPanel>
+        </Border>
     </Grid>
 </Window>
