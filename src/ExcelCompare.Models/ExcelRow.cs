@@ -33,7 +33,8 @@ namespace ExcelCompare.Models
             Index = index;
             WaybillNumber = row.GetCell(0).ToString().Trim();
             BoxNumber = row.GetCell(1).ToString().Trim();
-            if (double.TryParse(row.GetCell(2).ToString().Trim(), out double amount))
+
+            if (double.TryParse(row.GetCell(2)?.ToString().Trim() ?? "0", out double amount))
             {
                 Amount = amount.ToString();
             }
